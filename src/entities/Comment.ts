@@ -1,4 +1,4 @@
-import { Exclude } from "class-transformer";
+import { Exclude,Expose } from "class-transformer";
 import { BeforeInsert, Column, Entity as TOEntity, Index, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { makeId } from "../utils/helpers";
 
@@ -37,6 +37,10 @@ export default class Comment extends Entity {
     @Exclude()
     @OneToMany(() => Vote , vote => vote.comment)
     votes:Vote[]
+    
+    @Expose() get voteScore() : number {
+        return this.votes?.reduce((prev,curr) => prev + (curr.value || 0),0)
+    }
 
     protected userVote:number
     setUserVote(user:User) {

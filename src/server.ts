@@ -14,9 +14,12 @@ import postRoutes from './routes/posts'
 
 import clubRoutes from './routes/clubs'
 
+import userRoutes from './routes/users'
+
 import miscRoutes from './routes/misc'
 
 import trim from './middleware/trim'
+
 
 
 const app =express()
@@ -42,6 +45,7 @@ app.use('/api/auth',authRoutes)
 app.use('/api/posts',postRoutes)
 app.use('/api/clubs',clubRoutes)
 app.use('/api/misc',miscRoutes)
+app.use('/api/users',userRoutes)
 
 
 app.listen(PORT,async () => {

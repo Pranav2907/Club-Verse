@@ -144,13 +144,33 @@ const uploadClubImage = async (req:Request,res:Response)=>{
         return res.status(500).json({error:'something went wrong'})
 }
     }
-    
+  
+const searchClubs = async (req:Request,res:Response) => {
+    try {
+        const name = req.params.name
+
+        if(isEmpty(name)){
+            return res.status(400).json({error:'Name must not be empty'})
+        }
+
+        const clubs = await getRepository(Club)
+        .createQueryBuilder()
+        .where('LOWER(name) LIKE :name', {name : `%${name.toLowerCase().trim()}%`})
+        .getMany()
+
+      return res.json(clubs)
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({error:'something went wrong'})  
+    }
+}    
 
 
 const router = Router()
 
 router.post('/',user,auth,createClub)
 router.get('/:name',user,getClub)
+router.get('/search/:name',searchClubs)
 router.post('/:name/image',user,auth,ownClub,upload.single('file'),uploadClubImage)
 
 export default router

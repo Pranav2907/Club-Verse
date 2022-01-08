@@ -1,4 +1,6 @@
 import { Request, Router , Response} from "express";
+import { getConnection } from "typeorm";
+import Club from "../entities/Club";
 import Comment from "../entities/Comment";
 import Post from "../entities/Post";
 import User from "../entities/User";
@@ -58,9 +60,31 @@ const vote = async (req:Request,res:Response) => {
     }
 }
 
+const topClubs = async (_:Request,res:Response) => {
+    try {
+        const imageUrlExp = `COALESCE('http://localhost:5000/images/' || c."imageURN",
+          'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y') `
+        const  clubs =  await getConnection()
+          .createQueryBuilder()
+          .select(`c.title,c.name,${imageUrlExp} as "imageUrl", count(p.id) as "postCount"`)
+          .from(Club,'c')
+          .leftJoin(Post,'p',`c.name = p."clubName"`)
+          .groupBy('c.title,c.name,"imageUrl"')
+          .orderBy(`"postCount"`,'DESC')
+          .limit(5)
+          .execute()
+
+          return res.json(clubs)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+}
+
 
 const router = Router()
 router.post('/vote',user,auth,vote)
+router.get('/top-clubs',topClubs)
 
 
 export default router
